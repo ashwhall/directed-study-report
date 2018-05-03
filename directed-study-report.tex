@@ -1,0 +1,64 @@
+\documentclass{report}
+\usepackage[a4paper]{geometry}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{pgfplots}
+\usepackage{ amssymb }
+\usepackage{color, soul}
+\usepackage[backend=biber]{biblatex}
+\addbibresource{references.bib}
+\graphicspath{{images/}}
+
+
+%opening
+\title{Directed Study Report\\CSE4DIR}
+\author{Ash Hall\\17756156}
+
+\newcommand{\TODO}[1]{\sethlcolor{pink}\hl{\\(#1)\\}}
+\newcommand{\FEEDBACK}[1]{\sethlcolor{green}\hl{\\ Feedback: \\#1\\}}
+\newcommand{\TOCITE}[2][citation needed]{\textsuperscript{\underline{#1}}}
+
+\begin{document}
+
+	\maketitle
+	\thispagestyle{empty}
+	\newpage
+	\thispagestyle{empty}
+	\tableofcontents
+	\newpage
+	\thispagestyle{empty}
+	\newpage
+	
+	\setcounter{chapter}{1}	
+	\chapter*{Directed Study Report}
+
+	\section{Introduction}
+	In this section I'll:
+	\begin{itemize}
+		\item Give a quick introduction to the report
+		\item Discuss what my project is
+		\item Discuss why I needed this subject (to obtain benchmarks and build the framework). I won't be explicit in saying "why I needed this subject" though.
+	\end{itemize}
+	
+	\subsection{Environment}
+	State the environment - (Ubuntu, docker, tensorflow etc.)
+	
+	\section{Framework}
+	A description of the framework heirarchy. I'll give a simple diagram of the file-structure/python modules in the project, then explain roughly what everything is responsible for.
+	
+	\section{Training Procedure and Metrics}
+	Here I'll explain how I trained each of the models (the stuff that's consistent between them), and give an introduction to some terms, and explain the metrics I used.
+	
+	\section{Benchmark Experiments and Results}
+	I'll put a short introduction to the results here,
+	
+	\subsection{Experiment 1}
+	(These will actually have names, not just experiment 1, 2, ...)
+	\subsection{Experiment 2}
+	\subsection{Experiment 3}
+		
+	\section{Summary}
+	Summarise the experiment results and what impact they have on my project, summarise the work that I've done and where it leaves my with regards to the second semester and the "actual work". 
+	
+	
+\end{document}
