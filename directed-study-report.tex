@@ -33,16 +33,23 @@
 	\chapter*{Directed Study Report}
 
 	\section{Introduction}
+	\TODO{This will be written properly once the rest is done}
 	This report is about the effects of catastrophic interference in neural networks. \\
 	We'll discuss some techniques for mitigating these effects, and will explore the severity of each.
 	The benefit of exploring these things. \\
 	
 	
 	\section{Transfer Learning}
-	What transfer learning is \\
-	Why we want transfer learning (consider both changing datasets and extending classes) \\
-	How transfer learning works (with diagram) \\
-	What's wrong with transfer learning (need to keep old examples if extending classes) \\
+	The training of a neural network occurs by presenting many examples, and iteratively optimising the weights. A dataset consisting of a small number of examples may be prohibitive to optimisation in this manner, as a model would likely over-fit to the training examples, and not be capable of generalising to novel examples. \emph{Transfer learning} minimising this problem, by allowing a pre-trained model to be re-purposed to a different dataset. \par
+	The bulk of an image-classification neural network acts as a \emph{feature-extractor}, with studies\parencite{extractors} showing that a sufficiently-large image dataset leads to a highly-generalisable feature extractor. Transfer learning takes advantage of this property by taking the resultant feature extractor and amending the tail of a neural network to perform classification between different classes. Figure \ref{fig:transferlearning:1} shows a model pre-trained on a large image dataset being adapted to another. \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=11cm]{transferlearning}
+		\caption{Transfer learning overview}
+		\label{fig:transferlearning:1}
+	\end{figure}
+	There are two fundamental problems with this approach. The first is that although this lessens the effects of over-fitting, it doesn't entirely avoid them; training on a very small dataset is still prone to this problem. The other issue is that if you wished to not replace the old dataset classes, but add the new dataset classes to the model, you would need to store examples and repeatedly present them to the network during re-training. This introduces a whole suite of problems including training-example balancing, which we won't address here. \par
+	Simply put, while providing strong results, transfer learning is limited in its usability, and is inherently inapplicable to the task of continuous learning -- which we'll address in the following section. \par
 	
 	\section{Continuous Learning}
 	What continuous learning is. \\
