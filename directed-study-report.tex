@@ -17,14 +17,45 @@
 \newcommand{\TODO}[1]{\sethlcolor{pink}\hl{\\(#1)\\}}
 \newcommand{\FEEDBACK}[1]{\sethlcolor{green}\hl{\\ Feedback: \\#1\\}}
 \newcommand{\TOCITE}[2][citation needed]{\textsuperscript{\underline{#1}}}
+\newcommand{\SCORE}[2]{
+	\begin{align*}
+	\text{Score}_S &= #1 \\
+	\text{Score}_T &= #2 \\
+	\end{align*}
+}
 
 \begin{document}
 
-	\maketitle
+	\begin{titlepage}
+		\begin{center}
+			\vspace*{5cm}
+			{\huge \textbf{Directed Study Report}} \\
+			\vspace{0.3cm}
+			{\large Investigation of Catastrophic Forgetting in Neural Networks} \\
+			\vspace*{2cm}
+			\textbf{Author} \\
+			\textit{Ash Hall} \\
+			Honours Student \\
+			Department of Computer Science \\
+			La Trobe University \\		
+			\vspace{0.75cm}
+			
+			\textbf{Supervisor} \\
+			\textit{Zhen He} \\
+			Professor \\
+			Department of Computer Science \\
+			La Trobe University \\
+			
+			
+			\vfill
+		\end{center}
+	\end{titlepage}
 	\thispagestyle{empty}
 	\newpage
 	\thispagestyle{empty}
 	\tableofcontents
+	\thispagestyle{empty}
+	\listoffigures
 	\newpage
 	\thispagestyle{empty}
 	\newpage
@@ -99,7 +130,7 @@
 	\section{Key Terminology}
 	\textit{Source classes} refer to a set of classes on which a \textit{source model} has been pre-trained. Similarly, a \textit{target model} is produced by extending a source model's classification ability to also include a set of \textit{target classes} -- a disjoint set of classes to those that the source model was trained on. \par
 	
-	\section{Pre-Training Procedure}
+	\section{Pre-Training Procedure} \label{pretrain}
 	Each of the experiments were performed in a two-stage training procedure. The first stage of training was consistent for each experiment, which will now be described. \par
 	The model architecture (figure \ref{fig:model:1}) used for training was consistent with other works of the same nature, with a body consisting of four convolutional blocks (figure \ref{fig:convblock:1}) followed by two parallel fully-connected output layers -- one each for the source target datasets. \par
 	\begin{figure}[h]
@@ -115,14 +146,15 @@
 		\caption{A convolutional block}
 		\label{fig:convblock:1}
 	\end{figure}
-	For CIFAR-100, the number of total classes $N=100$, allowing us the ability to choose a smaller number of \emph{source} and \emph{target} classes and compare results. For a number of per-model source classes $N_S$, we can easily build $N-N_S-1$ overlapping incremental class subsets (figure \ref{fig:subsets:1}).
-	For each of these subsets, a model was trained using an Adam optimizer with a learning rate of $10^{-4}$. Due to the relatively small number of examples in the training/validation sets (500/100), training was stopped after 3000 iterations. Stopping at this many training iterations was determined empirically, as training for longer caused the model's performance on the validation set to drop due over-fitting to the training set. \par
+	For CIFAR-100, the number of total classes $N=100$, allowing us the ability to choose a smaller number of \emph{source} and \emph{target} classes and compare results. For a number of per-model source classes $N_S$, we can easily build $N-N_S-1$ overlapping incremental class subsets (figure \ref{fig:subsets:1}). \par
+	We have chosen to work with the number of source classes $N_S = 50$, and the number of target classes $N_T = 10$, for a total of 60-way classifier in the end. This number of classes was chosen as the number of examples in each class is quite low, so training on 50 classes allows for the learning of somewhat general features. This is also to better simulate a real-world use-case, where classifiers in practice often have a large number of classes between which to predict. \par
+	For each of these subsets, a model was trained using an Adam optimizer with a learning rate of $10^{-4}$. Due to the relatively small number of examples in the training/validation sets (500/100), training was stopped after 3000 iterations. Stopping at this many training iterations was determined empirically, as training for longer caused the model's performance on the validation set to drop due to over-fitting to the training set. \par
 	The weights of each model were saved to disk and not modified any further, such that each experiment began with the exact same models. \par
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=8cm]{modelsubsets}
 		\caption{Class subset selection}
-		A number of class subsets can easily be selected using an overlapping, incremental selection schema. Example using $N_S = 4$.
+		A number of class subsets can easily be selected using an overlapping, incremental selection schema. Example using number of source classes $N_S = 4$.
 		\label{fig:subsets:1}
 	\end{figure}
 
@@ -139,53 +171,66 @@
 	\text{Score}_T &= \text{Precision}(\bm{\theta}_T, \bm{x}_T) - \text{Precision}(\bm{\theta}_S, \bm{x}_S)
 	\end{align}
 	By only considering the relative improvement of a model's performance, we don't allow the difficulty of the particular classes to distort our metrics, nor the quality of the source models. \par
+	A positive score implies that the model has learnt from its experience, whereas a negative score implies that the model has forgotten. \par
 	
 	\section{Experiments and Results}
-	Initial score (source test): 38.8760784%
-	\TODO{Put a short introduction to the results here after writing them up}
+	After training a batch of 51 models as according to section \ref{pretrain}, the results obtained on the validation set of the source dataset $\bm{x}_T$ was 38.87\%. \par
+	While this may seem like a low validation accuracy, it is worth mentioning that this 50-way classification task is already quite difficult, given that there are only $500+100=600$ images available for each image. The task of generalising from 500 known to 100 previously unseen examples is difficult, with other works typically employing image-augmentation techniques such as rotations, flips, crops, etc. No image augmentation techniques were used for this result, so that we may consider only the ``true'' classification accuracy. \par
 	
 	\subsection{Retraining with Source and Target Datasets}
-	This experiment explores the performance under the best-possible circumstances. Having access to the source dataset removes the possibility of catastrophic forgetting, as models are consistently exposed to examples from the source dataset. It is unfair to compare the results from this experiment with those from other experiments, so this simply provides the ``best possible'' results.
-	\TODO{}
+	This experiment explores the performance under ideal circumstances -- that is, where training can occur using images from both the source and target dataset. Having access to the source dataset minimises the effects of catastrophic forgetting, as models are consistently exposed to examples from the source dataset. It is unfair to compare the results from this experiment with those from other experiments, so this simply provides the ``best possible'' results. \par
+	After training for 3000 iterations, the classification accuracy on the source and target datasets were 35.17\% and 27.72\%, respectively -- resulting in scores:
+	\SCORE{-0.037}{-0.112}
 	
+	It is reasonable to expect a negative score for the source dataset, as simply by increasing the number of classes from 50 to 60 there is an inherent drop in accuracy. While the model did learn to some extent to classify between the target classes, its performance is quite poor. There are many factors which affect this, but likely it is due to the fact that the weights were already well-refined to the source classes' distributions, making it hard for the model to transfer its knowledge to the new classes. As we'll see later on, relieving the model of its duty to classify the source classes allows the it to better utilise its representational power to learn the target classification task. \par
+
 	\subsection{Retraining with only Target Dataset}
-	The following experiments actually investigate the effects of catastrophic forgetting, as models aren't exposed to the source dataset after pre-training is complete. Due to the rapid onset of catastrophic forgetting, we will report the score at retraining steps 5, 10, 20 and 50.
-	\TODO{}
+	The following experiments actually investigate the effects of catastrophic forgetting, as models aren't exposed to the source dataset after pre-training is complete. The techniques employed in this section is referred to as ``parameter freezing'', which is performed by simply locking parameters for certain parts of the model, now allowing them to change when re-training. \par 
+	We will explore the effects of different ``freezing strategies'' by re-training the models with different sections of the models frozen (figure \ref{fig:freezing:1}), and will discuss the purpose behind the different freezing strategies and their consequences. \par
+	Catastrophic forgetting has a rapid onset, which can be seen in figure \ref{fig:book:1}, reporting the score at retraining steps 5, 10, 20 and 50. The final scores are compared in \ref{fig:book:2}, where we see that the third freezing strategy produces the best results, but that no techniques satisfactorily mitigate the effects of catastrophic forgetting. \par
+	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=10cm]{freezing}
 		\caption{Retraining freezing strategies}
 		The strategies used for weight-freezing when re-training. Green indicates trainable parameters, red indicates frozen parameters.
-		\label{fig:subsets:1}
+		\label{fig:freezing:1}
 	\end{figure}
 	\subsubsection{Training All Weights}
-	5: S: 0.221976471; T: 0.103137255\\
-	10: S: 0.073976471; T: 0.23527451\\
-	20: S: 0.00345098; T: 0.38972549\\
-	50: S: 0.000070588; T: 0.516686275\\
+	In this experiment we consider the most naive of re-training strategies -- re-training the entire model with no consideration for frozen weights. We should expect that the source output head's predictions quickly go to zero, as the ``correct answer'' is to never one of those classes. Training for 50 iterations yielded scores of:
+	\SCORE{-0.389}{0.128}
+	Catastrophic forgetting occurred very quickly and with great effect, with the model's performance on the source classes dropping essentially to zero. This is to be expected and is a typical demonstration of catastrophic forgetting, as there is no attempt made to mitigate its effects. The model's body -- which is supposed to act as a general feature-extractor -- quickly discards information learnt relating to the source classes to learn quickly about the new classes. \par
 	
 	\subsubsection{Training Body and Target Output Head}
-	5: S: 0.228384314; T: 0.103980392\\
-	10: S: 0.080156863; T: 0.231078431\\
-	20: S: 0.006039216; T: 0.38354902\\
-	50: S: 0.00012549; T: 0.515058824\\
+	This experiment investigates only freezing the source class output head. We shouldn't expect this to perform very well, as although we aren't \emph{explicitly} training the source output head to never produce high probabilities, the target output head may learn to produce very high confidence in its predictions to ``outweigh'' the source output head. Training for 50 iterations yielded scores of:
+	\SCORE{-0.389}{0.126}
+	The results were very similar to those of the previous experiment, as we expected. The reason this is occurring is that not only is the target head outweighing the source head's predictions, the features in the body are still being changed. The output head of a neural network classifier can be considered a representation of the intensity to which a particular feature appears for a given class. We are now modifying what each feature actually is, but not allowing the source head to update its representation to match them. \par
 	
 	\subsubsection{Training only Target Output Head}
-	5: S: 0.292670588; T: 0.055784314\\
-	10: S: 0.280105882; T: 0.062411765\\
-	20: S: 0.215713725; T:0.105235294\\
-	50: S: 0.118345098; T: 0.185078431\\
-	100: S: 0.069341176; T: 0.300588235\\
-	200: S: 0.03827451; T: 0.406764706\\
-	500: S: 0.016776471; T: 0.475333333\\
-	1000: S: 0.007670588; T: 0.511411765\\
-	2500: S: 0.003733333; T: 0.552470588\\
-	\TODO{}
-	\subsection{Experiment 3}
-	TODO{}
+	What we now explore is the method regularly used in transfer learning, where only the new output head (the target output head) has its parameters changed. This differs slightly to transfer learning, in that transfer learning implies that the original head is removed entirely. We can expect that this technique will minimise catastrophic forgetting the most, as neither the feature extractor nor the source output head have their weights shifted. After training for 50 iterations, the model produced the scores:
+	\SCORE{-0.27}{-0.204}
+	As this is the result with the least forgetting thus far, trained for longer to view the best possible results. After 2500 iterations, we had:
+	\SCORE{-0.385}{0.164}
+	As expected, the catastrophic forgetting took much longer to occur to such an extent as previously encountered. However, after training for longer the model yielded its best target score yet - the accuracy produced is significantly higher than the accuracy on the source set during pre-training. \par
+	This result is interesting, as we should expect that extensive training results in over-fitting just as we discussed in section \ref{pretrain}. We theorise that this occurred due to a very limited amount of changes that the network could apply in order to improve. The body could be modified during training in other experiments, resulting in a feature extractor that is tightly-bound to the images it has seen. In contrast, this training schema only allows for adjustments to the output head, meaning that the model has to find the best-possible combination of features to represent the classes. \par
+	In only having access to modify the output head, the model is very limited in its fitting capacity, resulting in a generalised representation of the target classes. \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=12cm]{book}
+		\caption{Freezing strategy learning/forgetting rates}
+		\label{fig:book:1}
+	\end{figure}
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=12cm]{book2}
+		\caption{Freezing strategy learning/forgetting scores}
+		A comparison of results showing the scores for each freezing strategy.
+		\label{fig:book:2}
+	\end{figure}
+
 		
 	\section{Summary}
-	\TODO{Summarise the experiment results and what they indicate}
-	
+	We have explored different weight-freezing strategies to minimise the effects of catastrophic forgetting, and have explored the severity to which catastrophic forgetting occurs when re-training a neural network. We found no satisfactory method for catastrophic forgetting. The effect is slowed if only retraining the new output head, but learning is also, with no mid-point resulting in good classification results on both sets of classes. Although the resultant model did have good generalisation ability, exists a limit. The feature extractor already parametrised during the pre-training procedure is not guaranteed to represent the target classes, especially if the source and target classes differ by a large amount. \par	
 	
 \end{document}
