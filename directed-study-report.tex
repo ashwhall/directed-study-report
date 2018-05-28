@@ -101,15 +101,22 @@
 	
 	\section{Pre-Training Procedure}
 	Each of the experiments were performed in a two-stage training procedure. The first stage of training was consistent for each experiment, which will now be described. \par
-	The models used for training were consistent with other works of the same nature, consisting of four convolutional blocks (figure \ref{fig:convblock:1}) followed a fully-connected output layer. \par
+	The model architecture (figure \ref{fig:model:1}) used for training was consistent with other works of the same nature, with a body consisting of four convolutional blocks (figure \ref{fig:convblock:1}) followed by two parallel fully-connected output layers -- one each for the source target datasets. \par
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=4cm]{convblock}
+		\includegraphics[width=4cm]{modelarchitecture}
+		\caption{Model architecture}
+		\label{fig:model:1}
+		A separate fully-connected layer was used for each set of output classes
+	\end{figure}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=3.5cm]{convblock}
 		\caption{A convolutional block}
 		\label{fig:convblock:1}
 	\end{figure}
 	For CIFAR-100, the number of total classes $N=100$, allowing us the ability to choose a smaller number of \emph{source} and \emph{target} classes and compare results. For a number of per-model source classes $N_S$, we can easily build $N-N_S-1$ overlapping incremental class subsets (figure \ref{fig:subsets:1}).
-	For each of these subsets, a model was trained using an Adam optimizer with a learning rate of \TOCITE[?????]{}. Due to the relatively small number of examples in the training/validation sets (500/100), training was stopped after \TOCITE[?????]{} iterations. Stopping at this many training iterations was determined empirically, as training for longer caused the model's performance on the validation set to drop due over-fitting to the training set. \par
+	For each of these subsets, a model was trained using an Adam optimizer with a learning rate of $10^{-4}$. Due to the relatively small number of examples in the training/validation sets (500/100), training was stopped after 3000 iterations. Stopping at this many training iterations was determined empirically, as training for longer caused the model's performance on the validation set to drop due over-fitting to the training set. \par
 	The weights of each model were saved to disk and not modified any further, such that each experiment began with the exact same models. \par
 	\begin{figure}[h]
 		\centering
@@ -131,14 +138,48 @@
 	\label{eqn:evaluation:3}
 	\text{Score}_T &= \text{Precision}(\bm{\theta}_T, \bm{x}_T) - \text{Precision}(\bm{\theta}_S, \bm{x}_S)
 	\end{align}
-	By only considering the relative improvement of a model's performance, we don't allow the difficulty of the particular classes to distort our metrics, nor the quality of the source models.
+	By only considering the relative improvement of a model's performance, we don't allow the difficulty of the particular classes to distort our metrics, nor the quality of the source models. \par
 	
 	\section{Experiments and Results}
+	Initial score (source test): 38.8760784%
 	\TODO{Put a short introduction to the results here after writing them up}
 	
-	\subsection{Experiment 1}
-	\TODO{(These will actually have names, not just experiment 1, 2, ...)}
-	\subsection{Experiment 2}
+	\subsection{Retraining with Source and Target Datasets}
+	This experiment explores the performance under the best-possible circumstances. Having access to the source dataset removes the possibility of catastrophic forgetting, as models are consistently exposed to examples from the source dataset. It is unfair to compare the results from this experiment with those from other experiments, so this simply provides the ``best possible'' results.
+	\TODO{}
+	
+	\subsection{Retraining with only Target Dataset}
+	The following experiments actually investigate the effects of catastrophic forgetting, as models aren't exposed to the source dataset after pre-training is complete. Due to the rapid onset of catastrophic forgetting, we will report the score at retraining steps 5, 10, 20 and 50.
+	\TODO{}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=10cm]{freezing}
+		\caption{Retraining freezing strategies}
+		The strategies used for weight-freezing when re-training. Green indicates trainable parameters, red indicates frozen parameters.
+		\label{fig:subsets:1}
+	\end{figure}
+	\subsubsection{Training All Weights}
+	5: S: 0.221976471; T: 0.103137255\\
+	10: S: 0.073976471; T: 0.23527451\\
+	20: S: 0.00345098; T: 0.38972549\\
+	50: S: 0.000070588; T: 0.516686275\\
+	
+	\subsubsection{Training Body and Target Output Head}
+	5: S: 0.228384314; T: 0.103980392\\
+	10: S: 0.080156863; T: 0.231078431\\
+	20: S: 0.006039216; T: 0.38354902\\
+	50: S: 0.00012549; T: 0.515058824\\
+	
+	\subsubsection{Training only Target Output Head}
+	5: S: 0.292670588; T: 0.055784314\\
+	10: S: 0.280105882; T: 0.062411765\\
+	20: S: 0.215713725; T:0.105235294\\
+	50: S: 0.118345098; T: 0.185078431\\
+	100: S: 0.069341176; T: 0.300588235\\
+	200: S: 0.03827451; T: 0.406764706\\
+	500: S: 0.016776471; T: 0.475333333\\
+	1000: S: 0.007670588; T: 0.511411765\\
+	2500: S: 0.003733333; T: 0.552470588\\
 	\TODO{}
 	\subsection{Experiment 3}
 	TODO{}
