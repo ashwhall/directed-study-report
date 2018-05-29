@@ -183,8 +183,8 @@
 	
 	\subsection{Retraining with Source and Target Datasets}
 	This experiment explores the performance under ideal circumstances -- that is, where training can occur using images from both the source and target dataset. Having access to the source dataset minimises the effects of catastrophic forgetting, as models are consistently exposed to examples from the source dataset. It is unfair to compare the results from this experiment with those from other experiments, so this simply provides the ``best possible'' results. \par
-	After training for 3000 iterations, the classification accuracy on the source and target datasets were 35.17\% and 27.72\%, respectively -- resulting in scores:
-	\SCORE{-0.037}{-0.112}
+	After training for 1000 iterations, the classification accuracy on the source and target datasets were 37.21\% and 27.42\%, respectively -- resulting in scores:
+	\SCORE{-0.017}{-0.115}
 	
 	It is reasonable to expect a negative score for the source dataset, as simply by increasing the number of classes from 50 to 60 there is an inherent drop in accuracy. While the model did learn to some extent to classify between the target classes, its performance is quite poor. There are many factors which affect this, but likely it is due to the fact that the weights were already well-refined to the source classes' distributions, making it hard for the model to transfer its knowledge to the new classes. As we'll see later on, relieving the model of its duty to classify the source classes allows the it to better utilise its representational power to learn the target classification task. \par
 
@@ -215,8 +215,8 @@
 	\SCORE{-0.27}{-0.204}
 	As this is the result with the least forgetting thus far, trained for longer to view the best possible results. After 2500 iterations, we had:
 	\SCORE{-0.385}{0.164}
-	As expected, the catastrophic forgetting took much longer to occur to such an extent as previously encountered. However, after training for longer the model yielded its best target score yet - the accuracy produced is significantly higher than the accuracy on the source set during pre-training. \par
-	This result is interesting, as we should expect that extensive training results in over-fitting just as we discussed in section \ref{pretrain}. We theorise that this occurred due to a very limited amount of changes that the network could apply in order to improve. The body could be modified during training in other experiments, resulting in a feature extractor that is tightly-bound to the images it has seen. In contrast, this training schema only allows for adjustments to the output head, meaning that the model has to find the best-possible combination of features to represent the classes. \par
+	As expected, the catastrophic forgetting took much longer to occur to such an extent as previously encountered. However, after training for longer the model yielded its best target score yet - the accuracy produced is significantly higher than the accuracy on the source set during pre-training.\par
+	The model's accuracy on the target validation set was approximately the same as on the target training set, which means that there was practically no over-fitting on the training set after so many iterations. This result is interesting, as we should expect that extensive training results in over-fitting just as we discussed in section \ref{pretrain}. We theorise that this occurred due to a very limited amount of changes that the network could apply in order to improve. The body could be modified during training in other experiments, resulting in a feature extractor that is tightly-bound to the images it has seen. In contrast, this training schema only allows for adjustments to the output head, meaning that the model has to find the best-possible combination of features to represent the classes. \par
 	In only having access to modify the output head, the model is very limited in its fitting capacity, resulting in a generalised representation of the target classes. \par
 	\begin{figure}[h]
 		\centering
